@@ -2,6 +2,7 @@ import cors from "cors";
 import "dotenv";
 
 const whitelist = [process.env.CLIENT_URL];
+console.log(process.env.CLIENT_URL);
 
 export const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
