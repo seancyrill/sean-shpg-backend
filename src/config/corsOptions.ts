@@ -11,8 +11,6 @@ export const corsOptions: cors.CorsOptions = {
     ) {
       callback(null, true);
     } else {
-      console.log(process.env.CLIENT_URL);
-      console.log({ origin });
       callback(new Error("Not allowed by CORS"));
     }
   },
