@@ -11,7 +11,7 @@ export function verifyJWT(
   next: express.NextFunction
 ) {
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
+  console.log({ headers: req.headers, authHeader });
   if (!authHeader?.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized" });
   }
