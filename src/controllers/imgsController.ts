@@ -141,6 +141,7 @@ export async function deleteItemImg(req: reqTypes, res: express.Response) {
       WHERE item_id = ${relevantId}
     `);
     const item_imgs = imgQuery.rows;
+    console.log({ item_imgs });
 
     return res.status(200).json({ item_imgs });
   } catch (error) {
