@@ -7,18 +7,7 @@ import { reqTypes } from "types/controllerReqTypes";
 // @access Private
 export async function createSinglePromo(req: reqTypes, res: express.Response) {
   try {
-    const {
-      shop_id,
-      item_id,
-      discount,
-      start_date,
-      start_time,
-      end_date,
-      end_time,
-    } = req.body;
-
-    const start = new Date(`${start_date}T${start_time}`).toISOString();
-    const end = new Date(`${end_date}T${end_time}`).toISOString();
+    const { shop_id, item_id, discount, start_date, end_date } = req.body;
 
     // Check for existing promos for the item
     const alreadyOnDiscount = await pool.query(
@@ -33,8 +22,8 @@ export async function createSinglePromo(req: reqTypes, res: express.Response) {
       UPDATE promo_items
       SET 
         discount = ${discount}, 
-        start_date = '${start}', 
-        end_date = '${end}'
+        start_date = '${start_date}', 
+        end_date = '${end_date}'
       WHERE item_id = ${item_id} 
       `);
     } else {
@@ -50,8 +39,8 @@ export async function createSinglePromo(req: reqTypes, res: express.Response) {
           ${item_id},
           ${shop_id},
           ${discount},
-          '${start}',
-          '${end}')`
+          '${start_date}',
+          '${end_date}')`
       );
     }
 

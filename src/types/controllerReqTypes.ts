@@ -59,9 +59,7 @@ export type bodyTypes = ItemImgType & {
   shop_email: string;
   discount: number;
   start_date: string;
-  start_time: string;
   end_date: string;
-  end_time: string;
   promo_group_id: number;
 
   cartArray: {}[];
