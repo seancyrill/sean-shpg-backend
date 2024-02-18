@@ -69,4 +69,5 @@ export async function deleteImgS3(
       })
     ),
   ]);
+  return;
 }

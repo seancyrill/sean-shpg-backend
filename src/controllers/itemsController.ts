@@ -529,7 +529,13 @@ export async function getSearchedItems(req: reqTypes, res: express.Response) {
   try {
     const { offset = 0, limit = 50 } = req.query;
     const { searchParams }: { searchParams: string } = req.params;
-    const filters = searchParams.split(" ");
+
+    const checkForSaleCode =
+      searchParams === "summer"
+        ? "travel shoes shirt hat cap bag"
+        : searchParams;
+
+    const filters = checkForSaleCode.split(" ");
 
     // Generate placeholders for the search terms in the WHERE clause
     const placeholders = filters.map((_, index) => `$${index + 1}`);
