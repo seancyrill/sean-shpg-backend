@@ -15,7 +15,6 @@ export async function createSinglePromo(req: reqTypes, res: express.Response) {
       start_time,
       end_date,
       end_time,
-      promo_group_id,
     } = req.body;
 
     const start = new Date(`${start_date}T${start_time}`).toISOString();
@@ -46,15 +45,13 @@ export async function createSinglePromo(req: reqTypes, res: express.Response) {
           shop_id, 
           discount,
           start_date, 
-          end_date,
-          promo_group_id)
+          end_date)
         VALUES (
           ${item_id},
           ${shop_id},
           ${discount},
           '${start}',
-          '${end}',
-          ${promo_group_id})`
+          '${end}')`
       );
     }
 
