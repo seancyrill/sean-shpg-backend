@@ -54,20 +54,21 @@ export async function deleteImgS3(
 ) {
   const splitUrl = img_url.split("/").slice(-1)[0];
   const Key = `${folder}/${splitUrl}`;
-
-  await Promise.all([
-    s3Client.send(
+  try {
+    await s3Client.send(
       new DeleteObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key,
       })
-    ),
-    s3Client.send(
+    );
+
+    await s3Client.send(
       new DeleteObjectCommand({
         Bucket: process.env.AWS_THUMBNAIL_BUCKET_NAME,
         Key,
       })
-    ),
-  ]);
-  return;
+    );
+  } catch (error) {
+    throw error;
+  }
 }

@@ -133,17 +133,7 @@ export async function deleteItemImg(req: reqTypes, res: express.Response) {
     //delete from s3
     await deleteImgS3(img_url, "items");
 
-    const imgQuery = await pool.query(`
-      SELECT 
-        img_id,
-        img_url
-      FROM item_imgs
-      WHERE item_id = ${relevantId}
-    `);
-    const item_imgs = imgQuery.rows;
-    console.log({ item_imgs });
-
-    return res.status(200).json({ item_imgs });
+    return res.sendStatus(200);
   } catch (error) {
     console.error(error.message);
     return res.sendStatus(400);
@@ -228,16 +218,16 @@ export async function deleteUserImg(req: reqTypes, res: express.Response) {
     //delete from s3
     await deleteImgS3(img_url, "users");
 
-    const imgQuery = await pool.query(`
+    /* const imgQuery = await pool.query(`
       SELECT 
         img_id,
         img_url
       FROM user_imgs
       WHERE user_id = ${relevantId}
     `);
-    const user_imgs = imgQuery.rows;
+    const user_imgs = imgQuery.rows; */
 
-    return res.status(200).json({ user_imgs });
+    return res.sendStatus(200); //.json({ user_imgs });
   } catch (error) {
     console.error(error.message);
     return res.sendStatus(400);
@@ -322,16 +312,16 @@ export async function deleteShopImg(req: reqTypes, res: express.Response) {
     //delete from s3
     await deleteImgS3(img_url, "shops");
 
-    const imgQuery = await pool.query(`
+    /* const imgQuery = await pool.query(`
       SELECT 
         img_id,
         img_url
       FROM shop_imgs
       WHERE shop_id = ${relevantId}
     `);
-    const shop_imgs = imgQuery.rows;
+    const shop_imgs = imgQuery.rows; */
 
-    return res.status(200).json({ shop_imgs });
+    return res.sendStatus(200); //.json({ shop_imgs });
   } catch (error) {
     console.error(error.message);
     return res.sendStatus(400);

@@ -409,21 +409,23 @@ export async function deleteItem(req: reqTypes, res: express.Response) {
       [item_id]
     );
     const item_imgs: ItemImgType[] = imgQuery.rows;
-    await Promise.all(
-      item_imgs.map(
-        async ({ img_url }) => await deleteImgS3(img_url, relevantTable)
-      )
-    );
+
     await pool.query(
       `UPDATE items
       SET item_default_img_id = NULL
       WHERE item_id = $1`,
       [item_id]
     );
+
     await pool.query(
       `DELETE FROM item_imgs
       WHERE item_id = $1`,
       [item_id]
+    );
+    await Promise.all(
+      item_imgs.map(
+        async ({ img_url }) => await deleteImgS3(img_url, relevantTable)
+      )
     );
 
     await pool.query(
