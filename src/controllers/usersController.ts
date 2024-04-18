@@ -40,7 +40,6 @@ export async function register(req: reqTypes, res: express.Response) {
       RETURNING user_id`
     );
     const { user_id } = createQuery.rows[0];
-    console.log(user_id);
 
     res.status(201).json(user_id);
   } catch (error) {
@@ -120,7 +119,6 @@ export async function getCart(req: reqTypes, res: express.Response) {
 export async function updateCart(req: reqTypes, res: express.Response) {
   try {
     const { user_id, cartArray } = req.body;
-    console.log(cartArray);
     const query = await pool.query(
       `UPDATE users 
       SET user_cart = '${JSON.stringify(cartArray)}' 
