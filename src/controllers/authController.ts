@@ -108,7 +108,7 @@ export async function login(req: reqTypes, res: express.Response) {
 // @access Public
 export async function googleLogin(req: reqTypes, res: express.Response) {
   try {
-    const { username } = req.body;
+    const { username, img_url } = req.body;
 
     //check username
     const query = await pool.query(`
@@ -118,11 +118,32 @@ export async function googleLogin(req: reqTypes, res: express.Response) {
     const foundUser = query.rows[0];
 
     if (!foundUser) {
-      //make new account
-      await pool.query(`
+      //make new account, add img and set as default
+      const createQuery = await pool.query(`
         INSERT INTO users (username) 
         VALUES ('${username}') 
         RETURNING user_id
+      `);
+      const { user_id } = createQuery.rows[0];
+
+      const addImg = await pool.query(`
+        INSERT INTO users (
+          img_url,
+          thumbnail_url,
+          user_id)
+        VALUES (
+          '${img_url}',
+          '${img_url}',
+          ${user_id}
+        )
+        RETURNING img_id
+      `);
+      const addedImg = addImg.rows[0];
+
+      await pool.query(`
+        UPDATE users 
+        SET user_default_img_id = ${addedImg}
+        WHERE user_id = ${user_id}
       `);
     }
 
