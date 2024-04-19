@@ -1,12 +1,19 @@
 import express from "express";
-import { login, logout, refresh } from "../controllers/authController";
+import {
+  googleLogin,
+  login,
+  logout,
+  refresh,
+} from "../controllers/authController";
 import { loginLimiter } from "../middleware/loginLimiter";
 const router = express.Router();
+
+router.route("/refresh").get(refresh);
+router.route("/logout").post(logout);
+
+router.route("/google").post(googleLogin);
 
 router.use(loginLimiter);
 
 router.route("/").post(login);
-router.route("/refresh").get(refresh);
-router.route("/logout").post(logout);
-
 module.exports = router;

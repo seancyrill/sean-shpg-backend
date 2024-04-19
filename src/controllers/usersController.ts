@@ -73,6 +73,12 @@ export async function updatePassword(req: reqTypes, res: express.Response) {
       return res.status(401).json({ message: "Account does not exist" });
     }
 
+    if (!foundUser.password || foundUser.username === "test") {
+      return res
+        .status(401)
+        .json({ message: "You cheeky, special accounts dont have passwords" });
+    }
+
     //check current password
     const match = await bcrypt.compare(password, foundUser.password);
     if (!match)

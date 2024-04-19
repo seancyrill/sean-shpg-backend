@@ -77,7 +77,7 @@ export async function login(req: reqTypes, res: express.Response) {
         .status(401)
         .json({ message: "The password you entered is incorrect" });
 
-    const accessToken = createAccessToken(username);
+    const accessToken = await createAccessToken(username);
 
     const refreshToken = jwt.sign(
       {
@@ -108,50 +108,27 @@ export async function login(req: reqTypes, res: express.Response) {
 // @access Public
 export async function googleLogin(req: reqTypes, res: express.Response) {
   try {
-    const { username, img_url } = req.body;
-
+    const { username } = req.body;
     //check username
     const query = await pool.query(`
     SELECT username
     FROM users 
     WHERE username = '${username}'`);
-    const foundUser = query.rows[0];
 
-    if (!foundUser) {
-      //make new account, add img and set as default
-      const createQuery = await pool.query(`
-        INSERT INTO users (username) 
-        VALUES ('${username}') 
-        RETURNING user_id
-      `);
-      const { user_id } = createQuery.rows[0];
-
-      const addImg = await pool.query(`
-        INSERT INTO users (
-          img_url,
-          thumbnail_url,
-          user_id)
-        VALUES (
-          '${img_url}',
-          '${img_url}',
-          ${user_id}
-        )
-        RETURNING img_id
-      `);
-      const addedImg = addImg.rows[0];
-
+    if (!query.rows.length) {
+      //make new account
       await pool.query(`
-        UPDATE users 
-        SET user_default_img_id = ${addedImg}
-        WHERE user_id = ${user_id}
+      INSERT INTO users (username)
+      VALUES ('${username}') 
+      RETURNING user_id
       `);
     }
 
-    const accessToken = createAccessToken(username);
+    const accessToken = await createAccessToken(username);
 
     const refreshToken = jwt.sign(
       {
-        username: foundUser.username,
+        username,
       },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" }
@@ -191,7 +168,7 @@ export async function refresh(req: reqTypes, res: express.Response) {
     async function (err: jwt.VerifyErrors, decoded: typeof req.body) {
       if (err) return res.status(403).json({ message: "Token expired" });
 
-      const accessToken = createAccessToken(decoded.username);
+      const accessToken = await createAccessToken(decoded.username);
 
       res.json({ accessToken });
     }
