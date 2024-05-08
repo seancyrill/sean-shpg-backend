@@ -17,15 +17,7 @@ app.use("/", express.static(path.join(__dirname, "public")));
 
 //routes
 app.use("/", require("./routes/root"));
-app.use("/auth", require("./routes/auth"));
-app.use("/users", require("./routes/users"));
-app.use("/address", require("./routes/address"));
-app.use("/imgs", require("./routes/imgs"));
-app.use("/items", require("./routes/items"));
-app.use("/promo", require("./routes/promo"));
-app.use("/ratings", require("./routes/ratings"));
-app.use("/shops", require("./routes/shops"));
-app.use("/orders", require("./routes/orders"));
+// app.use("/auth", require("./routes/auth"));
 
 //404
 app.all("*", (req: express.Request, res: express.Response) => {
