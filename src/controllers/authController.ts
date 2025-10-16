@@ -1,43 +1,40 @@
-import express from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { pool } from "../db";
+import express from "express"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import { pool } from "../db"
 
 type bodyTypes = {
-  user_id: number;
-  username: string;
-  password: string;
-  shop_id: number;
-};
+  user_id: number
+  username: string
+  password: string
+  shop_id: number
+}
 
-type reqTypes = express.Request<any, any, bodyTypes, any>;
+type reqTypes = express.Request<any, any, bodyTypes, any>
 
 // @desc Login
 // @route POST /auth
 // @access Public
 export async function login(req: reqTypes, res: express.Response) {
   try {
-    const { username, password } = req.body;
+    const { username, password } = req.body
 
     if (!username || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required" })
     }
 
     //check username
     const query = await pool.query(`
     SELECT username, password
     FROM users 
-    WHERE username = '${username}'`);
-    const foundUser = query.rows[0];
+    WHERE username = '${username}'`)
+    const foundUser = query.rows[0]
     if (!foundUser) {
-      return res.status(401).json({ message: "Username does not exist" });
+      return res.status(401).json({ message: "Username does not exist" })
     }
     //check password
-    const match = await bcrypt.compare(password, foundUser.password);
-    if (!match)
-      return res
-        .status(401)
-        .json({ message: "The password you entered is incorrect" });
+    const match = await bcrypt.compare(password, foundUser.password)
+    if (!match) return res.status(401).json({ message: "The password you entered is incorrect" })
 
     const userQuery = await pool.query(`
       SELECT 
@@ -73,13 +70,13 @@ export async function login(req: reqTypes, res: express.Response) {
         shop_imgs si ON s.shop_default_img_id = si.img_id
       WHERE 
         u.username = '${username}'
-    `);
+    `)
     //returns {username, user_id, user_default_img, shop_id, shop_name, shop_default_img}
-    const userInfo = userQuery.rows[0];
+    const userInfo = userQuery.rows[0]
 
     const accessToken = jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1d",
-    });
+    })
 
     const refreshToken = jwt.sign(
       {
@@ -87,7 +84,7 @@ export async function login(req: reqTypes, res: express.Response) {
       },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" }
-    );
+    )
 
     // Create secure cookie with refresh token
     res.cookie("jwt", refreshToken, {
@@ -95,13 +92,13 @@ export async function login(req: reqTypes, res: express.Response) {
       secure: true, //https
       sameSite: "none", //cross-site cookie
       maxAge: 7 * 24 * 60 * 60 * 1000, //cookie expiry: set to match rT(7d)
-    });
+    })
 
     // Send accessToken containing username
-    res.json({ accessToken });
+    res.json({ accessToken })
   } catch (error) {
-    console.error(error.message);
-    return res.sendStatus(400);
+    console.error(error.message)
+    return res.sendStatus(400)
   }
 }
 
@@ -109,19 +106,19 @@ export async function login(req: reqTypes, res: express.Response) {
 // @route GET /auth/refresh
 // @access Public - because access token has expired
 export async function refresh(req: reqTypes, res: express.Response) {
-  const cookies = req.cookies;
+  const cookies = req.cookies
 
   if (!cookies?.jwt) {
-    return res.status(401).json({ message: "No cookie found" });
+    return res.status(401).json({ message: "No cookie found" })
   }
 
-  const refreshToken = cookies.jwt;
+  const refreshToken = cookies.jwt
 
   jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
     async function (err: jwt.VerifyErrors, decoded: bodyTypes) {
-      if (err) return res.status(403).json({ message: "Token expired" });
+      if (err) return res.status(403).json({ message: "Token expired" })
 
       const userQuery = await pool.query(`
       SELECT 
@@ -157,25 +154,25 @@ export async function refresh(req: reqTypes, res: express.Response) {
         shop_imgs si ON s.shop_default_img_id = si.img_id
       WHERE 
         u.username = '${decoded.username}'
-    `);
+    `)
       //returns {username, user_id, user_default_img, shop_id, shop_name, shop_default_img}
-      const userInfo = userQuery.rows[0];
+      const userInfo = userQuery.rows[0]
 
       const accessToken = jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "1d",
-      });
+      })
 
-      res.json({ accessToken });
+      res.json({ accessToken })
     }
-  );
+  )
 }
 
 // @desc Logout
 // @route POST /auth/logout
 // @access Public - just to clear cookie if exists
 export async function logout(req: reqTypes, res: express.Response) {
-  const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204); //No content
-  res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
-  res.json({ message: "Cookie cleared" });
+  const cookies = req.cookies
+  if (!cookies?.jwt) return res.sendStatus(204) //No content
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true })
+  res.json({ message: "Cookie cleared" })
 }
